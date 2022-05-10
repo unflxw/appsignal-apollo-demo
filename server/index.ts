@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 import http from 'http';
 
 import { createApolloPlugin } from '@appsignal/apollo-server';
@@ -5,15 +7,13 @@ import { Appsignal } from '@appsignal/nodejs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import type { TypeSource, IResolvers } from '@graphql-tools/utils';
 import { RequestContext } from '@mikro-orm/core';
-import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
+import { ApolloServerPluginDrainHttpServer, gql } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-koa';
 import { applyMiddleware } from 'graphql-middleware';
 import Koa from 'koa';
 
 import db, { initialize as initializeDatabase } from '@/db';
 
-// eslint-disable-next-line
-require('dotenv').config();
 
 const {
   CONFIG,
@@ -26,7 +26,12 @@ const config = {
   graphqlApiPath: '',
 };
 
-const typeDefs = {} as any;
+const typeDefs = gql`
+  type Query {
+    test: String
+  }
+`;
+
 const resolvers = {};
 const permissions = {};
 
