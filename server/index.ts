@@ -1,9 +1,17 @@
+import { Appsignal } from '@appsignal/nodejs';
+import { createApolloPlugin } from '@appsignal/apollo-server';
+
+const appsignal = new Appsignal({
+  active: true,
+  name: "Pythia",
+  pushApiKey: process.env.APPSIGNAL_PUSH_API_KEY,
+  log_level: "trace",
+  logPath: "logs"
+});
+
 require('dotenv').config();
 
 import http from 'http';
-
-import { createApolloPlugin } from '@appsignal/apollo-server';
-import { Appsignal } from '@appsignal/nodejs';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import type { TypeSource, IResolvers } from '@graphql-tools/utils';
 import { RequestContext } from '@mikro-orm/core';
@@ -13,32 +21,31 @@ import { applyMiddleware } from 'graphql-middleware';
 import Koa from 'koa';
 
 import db, { initialize as initializeDatabase } from '@/db';
+import BlogPost from '@/db/BlogPost';
 
-
-const {
-  CONFIG,
-} = process.env;
 
 const config = {
   server: {
     port: 8000,
   },
-  graphqlApiPath: '',
+  graphqlApiPath: '/api',
 };
 
 const typeDefs = gql`
+  type Post {
+    title: String
+    content: String
+  }
+
   type Query {
-    test: String
+    posts: [Post]
   }
 `;
 
-const resolvers = {};
+const resolvers = { Query: { posts: () => [db.orm.em.getRepository(BlogPost)] }};
 const permissions = {};
 
-const appSignal = new Appsignal({
-  active: CONFIG === 'production',
-  name: 'Pythia',
-});
+
 
 const {
   server: {
@@ -71,10 +78,10 @@ async function startServer(apolloServerParams: StartServerParams) {
       }
 
       // Query or Mutation
-      return {
-        client: ctx.client,
-        isAuthenticated: ctx.isAuthenticated(),
-      };
+      // return {
+      //   client: ctx.client,
+      //   isAuthenticated: ctx.isAuthenticated(),
+      // };
     },
     formatError(err) {
       console.error(err);
@@ -83,7 +90,7 @@ async function startServer(apolloServerParams: StartServerParams) {
 
       return err;
     },
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer }), createApolloPlugin(appSignal) as any],
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer }), createApolloPlugin(appsignal) as any],
   });
 
   await server.start();
