@@ -5,7 +5,7 @@ const appsignal = new Appsignal({
   active: true,
   name: "Pythia",
   pushApiKey: process.env.APPSIGNAL_PUSH_API_KEY,
-  log_level: "trace",
+  logLevel: "trace",
   logPath: "logs"
 });
 
