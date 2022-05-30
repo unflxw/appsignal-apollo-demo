@@ -42,7 +42,7 @@ const typeDefs = gql`
   }
 `;
 
-const resolvers = { Query: { posts: () => [db.orm.em.getRepository(BlogPost)] }};
+const resolvers = { Query: { posts: () => db.em.getRepository(BlogPost).findAll() }};
 const permissions = {};
 
 
