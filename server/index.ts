@@ -1,15 +1,15 @@
 import { Appsignal } from '@appsignal/nodejs';
 import { createApolloPlugin } from '@appsignal/apollo-server';
 
+require('dotenv').config();
+
 const appsignal = new Appsignal({
   active: true,
   name: "Pythia",
   pushApiKey: process.env.APPSIGNAL_PUSH_API_KEY,
-  log_level: "trace",
+  logLevel: "trace",
   logPath: "logs"
 });
-
-require('dotenv').config();
 
 import http from 'http';
 import { makeExecutableSchema } from '@graphql-tools/schema';
